@@ -1,0 +1,501 @@
+<!DOCTYPE html>
+
+<html>
+    <!-- Hangman exercise prsented by Wen Ou on March 19, 2019 -->
+
+    <style>
+
+        body{
+            background-color:black;
+        }
+
+        #title{
+            text-align: center;
+            font-size: 50px;
+            color:#0099FF;
+            font-family:Impact;
+        }
+
+        #name{
+            text-align:center;
+            font-size:35px;
+            font-family: impact;
+            color:white;
+        }
+
+        hr{
+            background-color:dodgerblue;
+            height:4px;
+            border-width:0px;
+            border-radius: 100%;
+        }
+
+        input{
+            border:0px;
+            border-radius: 3px;
+            width:400px;
+            height:30px;
+            font-family: cursive;
+            text-align:center;
+        }
+
+        #enterNameText{
+            color:white;
+            font-family: impact;
+            font-size:20px;
+        }
+
+        button{
+            width:48.45px;
+            height:48.45px;
+            border-color:black;
+            color:rgb(35, 35, 35);
+            border-radius: 8px;
+            border-width:1.5px;
+            font-size:20px;
+            background-color:skyblue;
+            font-family: impact;
+            animation: popUp 0.5s;
+        }
+
+        /* This creates a pop up animation */
+        @keyframes popUp {
+            0% {transform: scale(0);}
+            50% {transform: scale(1.05);}
+            75% {transform: scale(0.97);}
+            100% {transform: scale(1);}
+        }
+
+        #letterBox{
+            font-weight:bold;
+            font-size:40px;
+            text-align:center;
+            border-style:solid;
+            border-width: 2px;
+            border-color:dodgerblue;
+            border-radius:8px;
+            color:cornflowerblue;
+            font-family: cursive;
+        }
+
+        #tableInTable{
+            width:630px;
+            color:rgb(35, 35, 35);
+            font-family:impact;
+        }
+
+        #aboutText{
+            color:white;
+            text-align: center;
+            font-family:impact;
+        }
+
+        #instruction{
+            color:white;
+            font-family:impact;
+        }
+
+        .features{
+            background-color:cornflowerblue;
+            border-style:solid;
+            border-width:0;
+            border-radius:5px;
+            font-size:13px;
+        }
+
+        .specialButtons{
+            color:rgb(35, 35, 35);
+            font-size: 15px;
+            border:0;
+            border-radius:5px;
+            width:303px;
+            height:35px;     
+            text-align:center;     
+            background-color:dodgerblue;
+            transition:0.2s;
+        }
+
+        #picBox{
+            width:605px;
+            height:315px;
+            background-color:#0099FF;
+            border:1.5px solid dodgerblue;
+            border-radius: 6px;
+        }
+
+        .beginningBtn{
+            font-size:20px;
+            width:300px;
+            height:40px;
+            border:0px;
+            border-radius: 5px;
+            background-color:rgb(0, 166, 221);
+            font-family: impact;
+            color:rgb(35,35,35);
+            transition:0.2s;
+        }
+
+        .toWelcomeScreen{
+            font-size:17px;
+            width:100%;
+            height:35px;
+            border:0px;
+            border-radius: 5px;
+            color:rgb(35,35,35);
+            background-color: rgb(0, 166, 221);
+            transition: 0.2s;
+        }
+
+        #mainPage{
+            display:none;
+        }
+
+        #instruction{
+            display:none;
+        }
+
+        #about{
+            display:none;
+        }
+
+        #choosingCategories{
+            display:none;
+        }
+
+        .beginningBtn:hover{
+            background-color:deepskyblue;
+        }
+
+        .beginningBtn:active{
+            background-color: rgb(0, 166, 221);
+        }
+
+        .specialButtons:hover{
+            background-color:deepskyblue;
+        }
+
+        .specialButtons:active{
+            background-color:rgb(0, 167, 223);
+        }
+
+        .toWelcomeScreen:hover{
+            background-color:deepskyblue;
+        }
+
+        .toWelcomeScreen:active{
+            background-color:rgb(0, 167, 223);
+        }
+
+    </style>
+
+    <body>
+        <br><br>
+        <div id="title">Save The Dinosaurs</div><br>
+        <div id="name">Wen Ou</div><br><br>
+        <div id="hr"><hr><br></div>
+
+        <script>
+            var allWords, generatedWord, dashList, initialDisplay, accuracy, numOfGuesses, allPictures, numOfIncorrect, userName;
+            var numOfCorrect = 0; 
+            var totalNum = 0;
+            var score = 0;
+            var highScore = 0;
+            var allImages = ["hangmanPicture1.jpg", "hangmanPicture2.png", "hangmanPicture3.png", "hangmanPicture4.png", "hangmanPicture5.png", 
+            "hangmanPicture6.png", "hangmanPicture7.jpg", "hangmanPicture8.png", "hangmanPicture9.png", "hangmanPicture10.png", "hangmanPicture11.png"];
+
+            //this creates 26 letter buttons
+            function createButtons() {
+                for (x=1; x<=26; x++) {
+                    //use the createElement function to create known HTML elements
+                    var button = document.createElement("BUTTON");
+                    var lineBreak = document.createElement("br");
+                    //why start at 64? Because the letter 'A' is code 65
+                    var letter = String.fromCharCode(x+64);
+                    var t = document.createTextNode(letter);
+                    //add the text stored in 't' to the our button variable
+                    button.appendChild(t);
+                    button.id = letter;
+                    button.className = "letters";
+                    //this is how to add an event to the button -- name the event and
+                    //then include the function you want it to perform
+                    button.addEventListener("click", checkLetter);
+                    button.addEventListener("mouseover", changeColor);
+                    button.addEventListener("mouseout", changeColor2);
+                    //add the button to the page
+                    document.getElementById("allButtons").appendChild(button);
+                    //add a line break 'lineBreak' after 13 buttons
+                    if (x%13==0) {
+                        document.body.appendChild(lineBreak);
+                    }
+                }
+            }
+
+            // The function getWord() randomly picks a word from the list at the click of a button
+            function getWord() { 
+                generatedWord = allWords[Math.floor(Math.random()*11)];
+                // dashList is the actual displayed string on the page for the user to guess, the for loop turns every letter in the chosen word into a dash
+                dashList = new Array(generatedWord.length);
+                for(i=0; i<dashList.length; i++){
+                    if (generatedWord[i] == " ") {
+                        dashList[i] = "&nbsp&nbsp";
+                    } else {
+                        dashList[i] = "_ ";
+                    }
+                }
+                // this is to get rid of the commas
+                document.getElementById("letterBox").innerHTML = dashList.join("");
+                var buttons1 = document.getElementsByClassName("letters");
+                // the loop runs through every button in the class to assign properties to every one of them
+                for (i=0; i<buttons1.length; i++) {
+                    buttons1[i].style.backgroundColor = "skyblue";
+                    buttons1[i].style.color = "rgb(35,35,35)";
+                    // this enables the letter buttons when the button "get word" is pressed
+                    buttons1[i].disabled = false;
+                }      
+                document.getElementById("numOfGuesses").innerHTML = "Number of Guesses Leftover: 9";
+                document.getElementById("playerStatus").innerHTML = "Player Status: Playing";   
+                numOfGuesses = 9; 
+                numOfIncorrect = 0;
+                // resets the image to the initial image when the button "get word" is pressed
+                document.getElementById("picBox").src = allImages[0];
+            } 
+
+            function checkLetter() {
+                //this refers to the object that called this function
+                document.getElementById("picBox").innerHTML = "Change this to a picture of your choice";
+                // the for loop below compares the actual word to the displayed word, and changes the displayed word accordingly based on the user input
+                for (i=0; i<dashList.length; i++) {
+                    if (generatedWord[i] == this.id) {
+                        dashList[i] = this.id;
+                        this.style.backgroundColor="#0099FF";
+                    } else if (generatedWord[i] == " ") {
+                        dashList[i] = "&nbsp&nbsp";
+                    } 
+                }
+                // number of correct answers is later used to calculate accuracy
+                if (generatedWord.includes(this.id) == true) {
+                    numOfCorrect += 1; 
+                } else {
+                    this.style.backgroundColor = "rgb(160,160,160)";
+                    numOfGuesses -= 1;
+                    // number of incorrect answers helps to determine what image is called
+                    numOfIncorrect += 1;
+                    document.getElementById("picBox").src = allImages[numOfIncorrect];
+                }
+                // the total number of answers is later used to claculate accuracy
+                totalNum += 1;
+                // the if statement is used to program the various outcomes when the user successfully or unsuccessfully guesses a word
+                if (dashList.join("").replace("&nbsp&nbsp", " ") == generatedWord) {
+                    document.getElementById("playerStatus").innerHTML = "Player Status: Congradulation " + userName +", you won";
+                    var allButtons = document.getElementsByClassName("letters");
+                    for (i=0; i<allButtons.length; i++) {
+                        // disables all buttons once the game is over
+                        allButtons[i].disabled = true;
+                    }
+                    // displays the winning image "You have saved the dinosaurs"
+                    document.getElementById("picBox").src = allImages[10];
+                    score += numOfGuesses;
+                    document.getElementById("score").innerHTML = "Score: " + score;
+                    // resets high score if the new score is higher than the previous high score
+                    if (score > highScore) {
+                        highScore = score;
+                    }
+                    document.getElementById("highScore").innerHTML = "High Score: " + highScore;
+                } else if (numOfGuesses == 0) {
+                    document.getElementById("playerStatus").innerHTML = "Player Status: Sorry " + userName + ", you lost";
+                    numOfGuesses = 0;
+                    var allButtons = document.getElementsByClassName("letters");
+                    for (i=0; i<allButtons.length; i++) {
+                        // disables all buttons once the game is over
+                        allButtons[i].disabled = true;
+                    }
+                    // resets the score when the user looses
+                    score = 0;
+                    document.getElementById("score").innerHTML = "Score: 0";
+                }
+                document.getElementById("letterBox").innerHTML = dashList.join("");
+                accuracy = Math.round(numOfCorrect/totalNum*100);
+                document.getElementById("accuracy").innerHTML = "Accuracy: " + accuracy + "%";
+                document.getElementById("numOfGuesses").innerHTML = "Number of Guesses Leftover: " + numOfGuesses;
+                // disables the button once it is clicked
+                this.disabled = true;
+            }
+
+            function changeColor() {
+                this.style.backgroundColor="lightblue";
+                this.style.transition="0.2s";
+            }
+
+            function changeColor2() {
+                this.style.backgroundColor="skyblue";
+            }
+
+            function clearAccuracy() {
+                // resets accuracy by resetting the number of correct answers and total answer
+                numOfCorrect = 0;
+                totalNum = 0;
+                document.getElementById("accuracy").innerHTML = "Accuracy: ";
+            }
+
+            // this function displays the div "choosingCategories" and hides the rest
+            function chooseCategory() {
+                // prevents user from starting the game without entering a name
+                if (document.getElementById("userInput").value != "" && document.getElementById("userInput").value != "Please enter your name") {
+                    document.getElementById("nameScreen").style.display = "none";
+                    document.getElementById("choosingCategories").style.display = "block";
+                    userName = document.getElementById("userInput").value;
+                } else {
+                    document.getElementById("userInput").value = "Please enter your name";
+                }
+            }
+
+            // this function displays the main page and hides the rest. It also gets all the available words under the category of the user's choice
+            function getMainPage(type) {
+                document.getElementById("hr").style.display = "none";
+                document.getElementById("choosingCategories").style.display = "none";
+                document.getElementById("mainPage").style.display = "block";
+                if (type == "food") {
+                    allWords = ["CHICKEN WING", "LEMONADE", "HAMBURGER", "FRIED RICE", "FRENCH FRIES", "SANDWICH", "HOTDOG", "SAUSAGE", "PEPPERONI PIZZA", "DUMPLING", "ICE CREAM"];
+                } else if (type == "country") {
+                    allWords = ["UNITED STATES", "CANADA", "GERMANY", "FRANCE", "UNITED KINDOM", "RUSSIA", "CHINA", "ITALY", "BRAZIL", "INDIA", "JAPAN"];
+                } else {
+                    allWords = ["TORONTO", "PARIS", "BEIJING", "LONDON", "NEW YORK", "TOKYO", "MOSCOW", "SINGAPORE", "VANCOUVER", "BERLIN", "LOS ANGELES"];
+                }
+            }
+
+            // this function displays the home screen and hides the rest. It also resets all values, essentially restarting the game 
+            function toWelcomeScreen() {
+                document.getElementById("mainPage").style.display = "none";
+                document.getElementById("nameScreen").style.display = "block";
+                document.getElementById("hr").style.display = "block";
+                document.getElementById("instruction").style.display = "none";
+                document.getElementById("about").style.display = "none";
+                score = 0;
+                document.getElementById("score").innerHTML = "Score: ";
+                highScore = 0;
+                document.getElementById("highScore").innerHTML = "High Score: ";
+                numOfCorrect = 0;
+                totalNum = 0;
+                document.getElementById("accuracy").innerHTML = "Accuracy: ";
+                numOfGuesses = 9;
+                document.getElementById("numOfGuesses").innerHTML = "Number of Guesses Leftover: ";
+                document.getElementById("playerStatus").innerHTML = "Player Status: ";
+                generatedWord = null;
+                dashList = null;
+                document.getElementById("letterBox").innerHTML = "";
+                document.getElementById("userInput").value = "";
+                document.getElementById("picBox").src = allImages[0];
+                var allButtons = document.getElementsByClassName("letters");
+                for (i=0; i<allButtons.length; i++) {
+                    allButtons[i].style.backgroundColor = "skyblue";
+                    allButtons[i].disabled = false;
+                }    
+            }
+
+            // displays the instruction page while hiding the rest
+            function instruction() {
+                document.getElementById("nameScreen").style.display = "none";
+                document.getElementById("instruction").style.display = "block";
+            }
+
+            // displays the about page while hiding the rest
+            function about() {
+                document.getElementById("nameScreen").style.display = "none";
+                document.getElementById("about").style.display = "block";
+            }
+
+        </script>
+
+        <!-- this is the html for the welcome screen -->
+        <div id="nameScreen">
+            <center>
+                <div id="enterNameText">Enter Your Name:</div>
+                <br>
+                <input type="text" id="userInput">
+                <br><br><br>
+                <button class="beginningBtn" onclick="chooseCategory()">Start</button>
+                <br><br><br>
+                <button class="beginningBtn" onclick="instruction()">Instruction</button>
+                <br><br><br>
+                <button class="beginningBtn" onclick="about()">About</button>
+            </center>  
+        </div>
+
+        <!-- this is the html for the main page -->
+        <div id="mainPage">
+            <div id="letterBox"></div><br><br>        
+            <table>
+                <tr>
+                    <td id="allButtons"></td>
+                    <td rowspan="2"><img id="picBox" src="hangmanPicture1.jpg"></img></td>
+                </tr>
+                <tr>
+                    <td><br>
+                        <table cellpadding="7" id="tableInTable">
+                            <tr>
+                                <td id="score" class="features">Score: </td>
+                            </tr>
+                            <tr>
+                                <td id="highScore" class="features">High Score: </td>
+                            </tr>
+                            <tr>
+                                <td id="accuracy" class="features">Accuracy: </td>
+                            </tr>
+                            <tr>
+                                <td id="numOfGuesses" class="features">Number of Guesses Leftover: </td>
+                            </tr>
+                            <tr>
+                                <td id="playerStatus" class="features">Player Status: </td>
+                            </tr>
+                            <tr>
+                                <td>
+                                    <button class="specialButtons" onclick="clearAccuracy()">Clear Accuracy</button>
+                                    <button class="specialButtons" onclick="getWord()">Get Word</button>
+                                </td>
+                            </tr>
+                        </table>
+                    </td>
+                </tr>
+            </table>
+            <br>
+            <center><button class="toWelcomeScreen" onclick="toWelcomeScreen()">Back to Home Page</button></center>
+        </div>
+
+        <!-- this is the html for the instruction page -->
+        <div id="instruction">
+            <div id="instructionText">
+                <ul type="disk">
+                    <li>Hello user! You are to choose one of the chategories.</li><br>
+                    <li>The program will generate a list of words that fall in the chategory of your choice.</li><br>
+                    <li>You will be given a certain number of chances to guess the word.</li><br>
+                    <li>Good Luck!</li><br>
+                </ul><br><br><br><br><br><br><br>
+            </div>
+            <center><button class="toWelcomeScreen" onclick="toWelcomeScreen()">Back to Home Page</button></center>
+        </div>
+
+        <!-- this is the html for the about page -->
+        <div id="about">
+            <div id="aboutText">Save The Dinosaurs program is developed by Wen Ou on March 19, 2019.</div>
+            <br><br><br><br><br><br><br><br><br><br><br><br><br><br><br><br>
+            <center><button class="toWelcomeScreen" onclick="toWelcomeScreen()">Back to Home Page</button></center>
+        </div>
+
+        <!-- this is the html for the category choosing page -->
+        <div id="choosingCategories">
+            <center>
+                <br><br><br><br>
+                <button onclick="getMainPage('food')" class="beginningBtn">Food</button><br><br><br>
+                <button onclick="getMainPage('country')" class="beginningBtn">Country</button><br><br><br>
+                <button onclick="getMainPage('city')" class="beginningBtn">City</button>
+            </center>
+        </div>
+        
+        <script>
+            // this function is put at the bottom in order for the code to read over the table that the buttons are going to be appended into before actually doing it
+            createButtons();
+        </script>
+
+    </body>
+
+</html>
